@@ -1,4 +1,4 @@
-# _______________ Step 0: Import Libraries ──────────────────────────
+# _______________ Import Libraries ──────────────────────────
 import pandas as pd
 import numpy as np
 
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Preprocessing
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 # Handling class imbalance
@@ -24,7 +24,11 @@ from sklearn.metrics import (
     confusion_matrix,
     accuracy_score,
     f1_score,
-    roc_auc_score
+    roc_auc_score,
+    average_precision_score,
+    matthews_corrcoef,
+    recall_score,
+    precision_score
 )
 
 # _______________ Clustering ───────────────────────────────────────
@@ -33,7 +37,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ____________________ Load dataset ____________________
-df = pd.read_csv(r"C:\Users\ramez\Downloads\ecommerce_user_behavior_8000.csv")
+df = pd.read_csv(r"C:\Users\abdel\E-commerce-Behavior-Analysis-Purchase-Prediction\Data\Raw Data\ecommerce_user_behavior_8000.csv")
 
 # Display dataset
 print(f"Shape: {df.shape}")
@@ -82,7 +86,7 @@ bool_cols = df.select_dtypes(include='bool').columns
 df[bool_cols] = df[bool_cols].astype(int)
 
 # ____________Save cleaned dataset___________
-df.to_csv("ecommerce_user_behavior_cleaned.csv", index=False)
+df.to_csv("cleaned_ecommerce_user_behavior.csv", index=False)
 print("Cleaned dataset saved successfully!")
 
 # ____________________ Separate features and target ____________________
@@ -248,47 +252,74 @@ pc1_sorted = loadings['PC1'].abs().sort_values(ascending=False)
 
 print("\nTop features influencing behavior (PC1):")
 print(pc1_sorted.head(10))
-# ── Per-model evaluation ─────────────────────────────────────
 
-# Dictionary of prediction arrays (for metrics)
-models = {
-    'Logistic Regression': y_pred_lr,
-    'Decision Tree':       y_pred_dt,
-    'Random Forest':       y_pred_rf,
-}
- 
-# Dictionary of fitted estimators (needed for predict_proba / ROC-AUC)
-fitted = {
-    'Logistic Regression': lr,
-    'Decision Tree':       dt,
-    'Random Forest':       rf,
-}
- 
-for name, pred in models.items():
-    print(f'\n=== {name} ===')
-    print(f'Accuracy : {accuracy_score(y_test, pred):.4f}')
-    print(f'F1 Score : {f1_score(y_test, pred, average="weighted"):.4f}')
-    y_prob = fitted[name].predict_proba(X_test)[:, 1]
-    print(f'ROC-AUC : {roc_auc_score(y_test, y_prob):.4f}')
-    print(classification_report(y_test, pred,
-                        target_names=['No Buy', 'Buy']))
- 
-# ── Confusion matrices — all 3 models side by side ───────────
-fig, axes = plt.subplots(1, 3, figsize=(14, 4))
- 
-for ax, (name, pred) in zip(axes, models.items()):
-    cm = confusion_matrix(y_test, pred)
-    sns.heatmap(cm, annot=True, fmt='d', ax=ax, cmap='Blues', cbar=False,
-               xticklabels=['No Buy','Buy'],
-               yticklabels=['No Buy','Buy'])
-    ax.set_title(name, fontsize=11)
-    ax.set_xlabel('Predicted')  
-    ax.set_ylabel('Actual')
+# ================== CROSS-VALIDATED EVALUATION (IMBALANCE-AWARE) ==================
+# Replaces the single 80/20 split evaluation, which had only 3 non-buyers in the
+# test set — too few for a statistically reliable estimate of minority-class performance.
 
-plt.suptitle('Confusion Matrices — All Models', fontsize=13, y=1.02)
-plt.tight_layout()
-plt.savefig('confusion_matrices.png', dpi=150, bbox_inches='tight')
-plt.show()
+cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=20, random_state=42)
+
+cv_models = {
+    'Logistic Regression': lambda: LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced'),
+    'Decision Tree':        lambda: DecisionTreeClassifier(max_depth=5, class_weight='balanced', random_state=42),
+    'Random Forest':        lambda: RandomForestClassifier(n_estimators=200, max_depth=10, class_weight='balanced', random_state=42, n_jobs=-1)
+}
+
+cv_results = {name: {'roc_auc': [], 'pr_auc': [], 'mcc': [], 'f1_weighted': [],
+                      'accuracy': [], 'recall_minority': [], 'precision_minority': []}
+              for name in cv_models}
+
+for train_idx, test_idx in cv.split(X, y):
+    X_tr, X_te = X.iloc[train_idx].copy(), X.iloc[test_idx].copy()
+    y_tr, y_te = y.iloc[train_idx].copy(), y.iloc[test_idx].copy()
+
+    # Adapt SMOTE's k_neighbors to however many minority samples this fold's
+    # training set actually has (some folds may have very few).
+    n_min = y_tr.value_counts().min()
+    if n_min >= 2:
+        k = min(5, n_min - 1)
+        sm = SMOTE(sampling_strategy=0.4, random_state=42, k_neighbors=k)
+        X_tr_bal, y_tr_bal = sm.fit_resample(X_tr, y_tr)
+    else:
+        X_tr_bal, y_tr_bal = X_tr, y_tr
+
+    fold_scaler = StandardScaler()
+    X_tr_bal[scale_cols] = fold_scaler.fit_transform(X_tr_bal[scale_cols])
+    X_te[scale_cols] = fold_scaler.transform(X_te[scale_cols])
+
+    if len(set(y_te)) < 2:
+        continue  # skip folds where the test split has only one class present
+
+    for name, make_model in cv_models.items():
+        model = make_model()
+        model.fit(X_tr_bal, y_tr_bal)
+        pred = model.predict(X_te)
+        prob = model.predict_proba(X_te)[:, 1]
+
+        cv_results[name]['roc_auc'].append(roc_auc_score(y_te, prob))
+        # PR-AUC scored against the MINORITY class ("No Buy"), not the trivial majority class
+        cv_results[name]['pr_auc'].append(average_precision_score((y_te == 0).astype(int), 1 - prob))
+        cv_results[name]['mcc'].append(matthews_corrcoef(y_te, pred))
+        cv_results[name]['f1_weighted'].append(f1_score(y_te, pred, average='weighted'))
+        cv_results[name]['accuracy'].append(accuracy_score(y_te, pred))
+        cv_results[name]['recall_minority'].append(recall_score(y_te, pred, pos_label=0, zero_division=0))
+        cv_results[name]['precision_minority'].append(precision_score(y_te, pred, pos_label=0, zero_division=0))
+
+# ── Build summary table (mean ± std across all folds) ──────────────────────
+summary_rows = []
+for name, metrics in cv_results.items():
+    row = {'Model': name}
+    for metric, vals in metrics.items():
+        vals = np.array(vals)
+        row[metric] = f"{vals.mean():.3f} ± {vals.std():.3f}"
+    summary_rows.append(row)
+
+cv_summary_df = pd.DataFrame(summary_rows).set_index('Model')
+print("\n=== Cross-Validated Results (100 folds) ===")
+print(cv_summary_df)
+
+cv_summary_df.to_csv("cv_results_summary.csv")
+print("\nSaved cross-validated summary to cv_results_summary.csv")
  
 
 
