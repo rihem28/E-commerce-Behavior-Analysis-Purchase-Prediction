@@ -1,0 +1,5 @@
+,SMOTE + class weight,SMOTE + class weight,SMOTE + class weight,SMOTE + class weight,SMOTE only,SMOTE only,SMOTE only,SMOTE only,SMOTENC + class weight,SMOTENC + class weight,SMOTENC + class weight,SMOTENC + class weight,Class weight only (no resampling),Class weight only (no resampling),Class weight only (no resampling),Class weight only (no resampling)
+,pr_auc,mcc,recall_minority,precision_minority,pr_auc,mcc,recall_minority,precision_minority,pr_auc,mcc,recall_minority,precision_minority,pr_auc,mcc,recall_minority,precision_minority
+Logistic Regression,0.783,0.512,0.947,0.286,0.78,0.539,0.892,0.336,0.711,0.538,0.828,0.365,0.771,0.491,0.977,0.255
+Decision Tree,0.115,0.23,0.367,0.163,0.128,0.242,0.372,0.178,0.129,0.263,0.407,0.194,0.075,0.235,0.487,0.124
+Random Forest,0.498,0.314,0.242,0.432,0.535,0.308,0.23,0.432,0.507,0.281,0.213,0.388,0.526,0.062,0.038,0.1

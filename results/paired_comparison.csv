@@ -1,0 +1,9 @@
+metric,vs,mean_difference,reference_better_pct,tied_pct
+pr_auc,Decision Tree,0.6680766870850906,100.0,0.0
+recall_minority,Decision Tree,0.58,90.0,10.0
+mcc,Decision Tree,0.28197823554697893,91.0,1.0
+precision_minority,Decision Tree,0.12325607725607725,79.0,2.0
+pr_auc,Random Forest,0.2846861604488036,85.0,5.0
+recall_minority,Random Forest,0.7050000000000002,96.0,4.0
+mcc,Random Forest,0.1978104174448278,62.0,0.0
+precision_minority,Random Forest,-0.14576069763569766,49.0,1.0
