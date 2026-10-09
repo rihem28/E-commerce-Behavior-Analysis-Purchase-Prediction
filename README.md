@@ -523,7 +523,7 @@ If `ECOM_DATA` is not set, update the default path in the script to match you lo
 The script provides configurable environment variables.
 
 | Environment Variable | Default               | Purpose                                                 |
-| ---------------- ----| --------------------- | ------------------------------------------------------- |
+| ---------------------| --------------------- | ------------------------------------------------------- |
 | `ECOM_DATA`          | Configured local path | CSV input file path                                     |
 | `ECOM_REPEATS`       | `20`                  | Number of repeated CV rounds                            |
 | `ECOM_OOF_REPEATS`   | `5`                   | Number of OOF repeats for curves and threshold analysis |
