@@ -17,23 +17,23 @@ An end-to-end machine-learning project that predicts an e-commerce purchase outc
 ---
 
 ## Table of Contents
-. Project Overview
-. Objectives
-. Dataset
-. Tools and Technologies
-. Methodology
-. Models and Evaluation Metrics
-. Results
-. Threshold Analysis
-. Sensitivity Analysis
-. Model Interpretability
-. PCA Exploratory Analysis
-. Business Recommendations
-. Limitations
-. Project Outputs
-. Reproducibility
-. Loading the Saved Model
-. Conclusion
+- Project Overview
+- Objectives
+- Dataset
+- Tools and Technologies
+- Methodology
+- Models and Evaluation Metrics
+- Results
+- Threshold Analysis
+- Sensitivity Analysis
+- Model Interpretability
+- PCA Exploratory Analysis
+- Business Recommendations
+- Limitations
+- Project Outputs
+- Reproducibility
+- Loading the Saved Model
+- Conclusion
 
 ---
 
@@ -42,7 +42,6 @@ An end-to-end machine-learning project that predicts an e-commerce purchase outc
 E-commerce platforms generate behavioral data that can help explain purchasing patterns and support data-driven decisions. This project develops a predictive workflow to determine whether a browsing session ends in a purchase, with particular emphasis on identifying the rare sessions that do not convert.
 
 The main analytical question is:
-
 **To what extent can session-level behavioral data predict purchase outcomes when non-buying sessions are extremely rare?**
 
 The project goes beyond a basic classification exercise by combining data-quality assessment, leakage-safe preprocessing, imbalance-handling strategies, repeated cross-validation, out-of-fold evaluation, threshold analysis, model interpretation, and exploratory dimensionality reduction.
@@ -55,18 +54,18 @@ Because the dataset contains only 13 non-buyers, accuracy alone is insufficient 
 
 ## Objectives
 
-. Assess data quality, missing values, duplicates, and potential outliers.
-. Prepare numerical, binary, and categorical features for machine learning.
-. Prevent data leakage during preprocessing and resampling.
-. Address extreme class imbalance using SMOTE, SMOTENC, and class weighting.
-. Compare Logistic Regression, Decision Tree, and Random Forest.
-. Evaluate minority-class performance using imbalance-aware metrics.
-. Select the most appropriate model for rare non-buyer detection.
-. Analyze precision–recall trade-offs across classification thresholds.
-. Test the sensitivity of results to alternative imbalance-handling strategies.
-. Interpret model coefficients and tree-based feature importance.
-. Explore feature structure using PCA.
-. Save the final fitted pipeline and reproducible analytical outputs.
+- Assess data quality, missing values, duplicates, and potential outliers.
+- Prepare numerical, binary, and categorical features for machine learning.
+- Prevent data leakage during preprocessing and resampling.
+- Address extreme class imbalance using SMOTE, SMOTENC, and class weighting.
+- Compare Logistic Regression, Decision Tree, and Random Forest.
+- Evaluate minority-class performance using imbalance-aware metrics.
+- Select the most appropriate model for rare non-buyer detection.
+- Analyze precision–recall trade-offs across classification thresholds.
+- Test the sensitivity of results to alternative imbalance-handling strategies.
+- Interpret model coefficients and tree-based feature importance.
+- Explore feature structure using PCA.
+- Save the final fitted pipeline and reproducible analytical outputs.
 
 ---
 
@@ -183,9 +182,9 @@ The project compares this approach against alternative configurations in the sen
 ### 4. Repeated stratified cross-validation
 
 The main model comparison uses:
-. 5 stratified folds
-. 20 repeats
-. Random seed: `42`
+- 5 stratified folds
+- 20 repeats
+- Random seed: `42`
 
 This gives **100 train/validation evaluations per model configuration.**
 
@@ -194,10 +193,10 @@ Stratification helps preserve the class distribution across folds, while repetit
 ### 5. Out-of-fold evaluation and threshold analysis
 
 Repeated out-of-fold predictions are used to examine:
-. Precision-recall curves for the non-buyer class
-. Precision and recall at different probability thresholds
-. Average confusion-matrix outcomes
-. The relationship between alert volume and non-buyer detection
+- Precision-recall curves for the non-buyer class
+- Precision and recall at different probability thresholds
+- Average confusion-matrix outcomes
+- The relationship between alert volume and non-buyer detection
 
 Each out-of-fold prediction is produced by a model that was not trained on that observation.
 
@@ -211,9 +210,9 @@ The project generates Logistic Regression coefficient summaries, Decision Tree v
 
 ### Models
 
-. **Logistic Regression:** Interpretable linear classifier and selected final model.
-. **Decision Tree:** Tree-based classifier for identifying split-based decision patterns.
-. **Random Forest:** Ensemble classifier for capturing potentially nonlinear relationships.
+- **Logistic Regression:** Interpretable linear classifier and selected final model.
+- **Decision Tree:** Tree-based classifier for identifying split-based decision patterns.
+- **Random Forest:** Ensemble classifier for capturing potentially nonlinear relationships.
 
 ### Evaluation metrics
 
@@ -249,11 +248,11 @@ Logistic Regression was selected because it achieved the strongest overall resul
 
 Key findings:
 
-. **ROC-AUC of 0.999:** exceptionally strong ranking performance in the repeated validation results.
-. **PR-AUC of 0.783:** substantially higher than Random Forest (0.498) and Decision Tree (0.115).
-. **Minority recall of 0.947:** identifies approximately 94.7% of non-buyers on average.
-. **MCC of 0.512:** stronger overall classification association than the alternatives.
-. **Comparatively low variability:** more stable results on several key metrics than the tree-based models.
+- **ROC-AUC of 0.999:** exceptionally strong ranking performance in the repeated validation results.
+- **PR-AUC of 0.783:** substantially higher than Random Forest (0.498) and Decision Tree (0.115).
+- **Minority recall of 0.947:** identifies approximately 94.7% of non-buyers on average.
+- **MCC of 0.512:** stronger overall classification association than the alternatives.
+- **Comparatively low variability:** more stable results on several key metrics than the tree-based models.
 
 Its non-buyer precision of 0.286 means that approximately 28.6% of sessions flagged as non-buyers are are genuine non-buyers on average. Although moderate in absolute terms, this is substantially higher than the original non-buyer prevalence of approximately 0.17%.
 
@@ -280,6 +279,7 @@ Logistic Regression is the preferred model for the stated objective, despite not
 The selected Logistic Regression model was evaluated across different decision thresholds using repeated out-of-fold probabilities.
 
 A session is flagged as a likely non-buyer when:
+
 `P(No Buy) ≥ threshold`
 
 | Threshold | Recall | Precision | Sessions flagged per pass | Non-buyers caught per pass |
@@ -311,8 +311,8 @@ At the default threshold, the average confusion matrix reports:
 
 The threshold analysis demonstrates a clear trade-off:
 
-. **Lower thresholds** catch more non-buyers but flag more sessions.
-. **Higher thresholds** improve precision and reduce alert volume but miss more non-buyers.
+- **Lower thresholds** catch more non-buyers but flag more sessions.
+- **Higher thresholds** improve precision and reduce alert volume but miss more non-buyers.
 
 The appropriate threshold depends on the cost of false-positive interventions versus the cost of missing a non-buyer. For example, a low-cost support prompt may justify a lower threshold, whereas an expensive incentive may require a higher one.
 
@@ -331,10 +331,10 @@ The analysis examines PR-AUC, MCC, recall, and precision to determine whether mo
 
 ### Main findings
 
-. **Logistic Regression remained the strongest model for minority-class ranking** across the tested configurations.
-. SMOTE only achieves a PR-AUC of 0.780 and MCC of 0.539 for Logistic Regression, compared with 0.783 and 0.512 under the main configuration.
-. SMOTENC + class weighting produces a lower Logistic Regression PR-AUC (0.711) but higher mean precision (0.365) and lower recall (0.828) than the main configuration.
-. Class weighting alone produces very high Logistic Regression recall, but its precision and overall balance should be considered when choosing an operating threshold.
+- **Logistic Regression remained the strongest model for minority-class ranking** across the tested configurations.
+- SMOTE only achieves a PR-AUC of 0.780 and MCC of 0.539 for Logistic Regression, compared with 0.783 and 0.512 under the main configuration.
+- SMOTENC + class weighting produces a lower Logistic Regression PR-AUC (0.711) but higher mean precision (0.365) and lower recall (0.828) than the main configuration.
+- Class weighting alone produces very high Logistic Regression recall, but its precision and overall balance should be considered when choosing an operating threshold.
 
 These findings show that imbalance handling affects the balance between detecting non-buyers and avoiding false-positive flags. No single configuration should be considered universally optimal without reference to the intended business use.
 
@@ -348,12 +348,12 @@ Coefficient analysis helps examine the direction and relative strength of predic
 
 In the fitted model, the most prominent purchase-associated signals included:
 
-**. `cart_items`:** strong positive association with purchase.
-**. `previous_purchases`:** strong positive association with purchase.
-**. `discount_seen`:** positive association in the simulated dataset.
-**. `avg_session_time` and `time_on_site`:** positive associations with purchase.
-**. `returning_user`:** positive association with purchase.
-**. `bounce_rate`:** strong negative association with purchase.
+- **`cart_items`:** strong positive association with purchase.
+- **`previous_purchases`:** strong positive association with purchase.
+- **`discount_seen`:** positive association in the simulated dataset.
+- **`avg_session_time` and `time_on_site`:** positive associations with purchase.
+- **`returning_user`:** positive association with purchase.
+- **`bounce_rate`:** strong negative association with purchase.
 
 Continuous features are standardized, so their coefficients describe changes in purchase log-odds associated with an approximately one-standard-deviation increase. Binary features are not standardized, so their coefficient magnitudes are not directly comparable with those of continuous features.
 
@@ -363,10 +363,10 @@ These coefficients represent predictive associations, not causal effects. Demogr
 
 Decision Tree and Random Forest importance estimates also highlight:
 
-. `cart_items`
-. `previous_purchases`
-. `avg_session_time`
-. `bounce_rate`
+- `cart_items`
+- `previous_purchases`
+- `avg_session_time`
+- `bounce_rate`
 
 The models broadly indicate that cart activity, purchase history, and session engagement carry useful predictive information in this dataset. Tree-based importance measures reflect contributions to the fitted models; they do not establish that changing a feature will cause a purchase.
 
@@ -416,13 +416,13 @@ Before real-world use, evaluate the model on a larger, representative dataset an
 
 ## Limitations
 
-**. Extremely small minority class:** only 13 original non-buyers are available. Fold-level estimates are sensitive to individual observations.
-**. Simulated data:** the dataset may not represent real customer behavior, commercial conditions, or production data quality.
-**. Synthetic oversampling:** SMOTE and SMOTENC generate examples from a very limited number of original non-buyers; these synthetic observations cannot replace real minority-class data.
-**. No independent external validation:** repeated cross-validation provides internal evaluation, but the final model still requires validation on new, representative data.
-**. Probability calibration:** resampling and class weighting can affect how model scores correspond to real-world probabilities. Calibration should be assessed independently before interpreting scores as actual purchase or non-purchase probabilities.
-**. No causal inference:** model coefficients, feature importance, and PCA reveal associations or structure, not proof of cause and effect.
-**. Exploratory PCA:** the first three components explain only 33.1% of the feature variance and do not replace supervised evaluation.
+- **Extremely small minority class:** only 13 original non-buyers are available. Fold-level estimates are sensitive to individual observations.
+- **Simulated data:** the dataset may not represent real customer behavior, commercial conditions, or production data quality.
+- **Synthetic oversampling:** SMOTE and SMOTENC generate examples from a very limited number of original non-buyers; these synthetic observations cannot replace real minority-class data.
+- **No independent external validation:** repeated cross-validation provides internal evaluation, but the final model still requires validation on new, representative data.
+- **Probability calibration:** resampling and class weighting can affect how model scores correspond to real-world probabilities. Calibration should be assessed independently before interpreting scores as actual purchase or non-purchase probabilities.
+- **No causal inference:** model coefficients, feature importance, and PCA reveal associations or structure, not proof of cause and effect.
+- **Exploratory PCA:** the first three components explain only 33.1% of the feature variance and do not replace supervised evaluation.
 
 Consequently, the results should be interpreted as a methodological demonstration of imbalanced classification rather than a guarantee of production performance.
 
@@ -487,6 +487,7 @@ cd E-commerce-Behavior-Analysis-Purchase-Prediction
 python -m venv venv
 venv\Scripts\activate
 ```
+
 **macOS / Linux**
 
 ```bash
@@ -509,6 +510,7 @@ The script supports the `ECOM_DATA` environment variable.
 ```powershell
 $env:ECOM_DATA = "C:\path\to\ecommerce_user_behavior_8000.csv"
 ```
+
 **macOS / Linux**
 
 ```bash
@@ -541,6 +543,7 @@ $env:ECOM_OOF_REPEATS = "1"
 export ECOM_REPEATS=2
 export ECOM_OOF_REPEATS=1
 ```
+
 Use the default settings for the full evaluation.
 
 ### 6. Run the pipeline
@@ -548,11 +551,13 @@ Use the default settings for the full evaluation.
 ```bash
 python ecommerce_pipeline.py
 ```
+
 If the script is stored in a `Data` directory, run it using its actual location, for example
 
 ```powershell
 py "Data\ecommerce_pipeline.py"
 ```
+
 The pipeline cleans the data, runs model comparisons and sensitivity analysis, generates figures and result tables, fits the final Logistic Regression pipeline, and performs PCA exploration.
 
 ---
@@ -593,6 +598,7 @@ print("Predicted class:", predictions)
 print("Class order:", pipeline.named_steps["clf"].classes_)
 print("Class probabilities:", probabilities)
 ```
+
 The class order is available from the fitted classifier's classes_ attribute. Always check this order before interpreting the columns returned by predict_proba().
 
 ---
