@@ -1,4 +1,4 @@
-# E-commerce Behavior Analysis and Purchase Prediction
+# E-commerce Non-buyer Detection
 
 An end-to-end machine-learning project that predicts an e-commerce purchase outcomes from session-level behavioral data. The project focuses on **extreme class imbalance, leakage-safe preprocessing, robust model evaluation, threshold analysis, sensitivity testing, and model interpretability.**
 
